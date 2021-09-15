@@ -44,31 +44,31 @@ while t==0:
     if num=="q":
         sys.exit("程式結束")
     else:
-            data={"sn":f'{num}'}
-            # 取得html檔
-            root=post(url,headers=headers,data=data)
+        data={"sn":f'{num}'}
+        # 取得html檔
+        root=post(url,headers=headers,data=data)
 
-            # 解析html
-            htmlfile=BeautifulSoup(root.text,"lxml")
+        # 解析html
+        htmlfile=BeautifulSoup(root.text,"lxml")
 
-            # 印出標題、片商、女優、發行日
-            title=htmlfile.find("h3")
-            print('標題：'+title.getText().strip(title.small.string))
-            movinfo=htmlfile.find("div",class_="col-md-9")
-            pro_actress=movinfo.find_all("a",limit=2)
-            print('片商：'+pro_actress[1].string)
-            print('女優：'+pro_actress[0].string)
+        # 印出標題、片商、女優、發行日
+        title=htmlfile.find("h3")
+        print('標題：'+title.getText().strip(title.small.string))
+        movinfo=htmlfile.find("div",class_="col-md-9")
+        pro_actress=movinfo.find_all("a",limit=2)
+        print('片商：'+pro_actress[1].string)
+        print('女優：'+pro_actress[0].string)
 
-            # 找出封面圖的標籤位置和網址
-            print('\n圖片下載中...')
-            img=htmlfile.find("div", class_="col-xs-12 col-md-12").find("img")
-            imglink=img["src"]
+        # 找出封面圖的標籤位置和網址
+        print('\n圖片下載中...')
+        img=htmlfile.find("div", class_="col-xs-12 col-md-12").find("img")
+        imglink=img["src"]
             
-            # 下載封面圖並存檔
-            img=get(imglink,headers=headers)
-            filename=title.small.string[0:title.small.string.index(' ')]
-            imgnam=dowwloadpath+filename.upper()+".jpg"
-            with open(imgnam,"wb") as file:
-                file.write(img.content)
-                print('-----下載完成-----\n')
-            file.close()
+        # 下載封面圖並存檔
+        img=get(imglink,headers=headers)
+        filename=title.small.string[0:title.small.string.index(' ')]
+        imgnam=dowwloadpath+filename.upper()+".jpg"
+        with open(imgnam,"wb") as file:
+            file.write(img.content)
+            print('-----下載完成-----\n')
+        file.close()
