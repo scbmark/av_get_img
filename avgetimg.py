@@ -4,6 +4,7 @@
 #日期：2021/9/15
 #版本：3.0(python)
 
+#TODO:'結合伊莉搜尋帖子'
 from bs4 import BeautifulSoup
 from requests import get,post
 import sys
@@ -40,11 +41,11 @@ t=0
 while t==0:
     # 輸入番號
     print("\n請輸入番號 例如:mide-365 ,mide365 或輸入'q'結束程式")
-    num=input("番號：")
-    if num=="q":
+    keywd=input("搜尋：")
+    if keywd=="q":
         sys.exit("程式結束")
     else:
-        data={"sn":f'{num}'}
+        data={"sn":f'{keywd}'}
         # 取得html檔
         root=post(url,headers=headers,data=data)
 
@@ -53,21 +54,32 @@ while t==0:
 
         # 印出標題、片商、女優、發行日
         title=htmlfile.find("h3")
+        num=title.small.string[0:title.small.string.index(' ')]
+        print('\n-----影片資訊-----')
+        print(f'番號：{num}')
         print('標題：'+title.getText().strip(title.small.string))
         movinfo=htmlfile.find("div",class_="col-md-9")
-        pro_actress=movinfo.find_all("a",limit=2)
-        print('片商：'+pro_actress[1].string)
-        print('女優：'+pro_actress[0].string)
+        pro_actress=movinfo.find_all("a")
+        if len(pro_actress)>=2:
+            for i in range(0,len(pro_actress)-1):
+                if i==0:
+                    print('女優：'+pro_actress[i].string)
+                else:
+                    print(pro_actress[i].string)
+            print('片商：'+pro_actress[-1].string)
+        elif len(pro_actress)==1:
+            print('片商：'+pro_actress[0].string)
+        else:
+            print('資訊取得錯誤')
 
         # 找出封面圖的標籤位置和網址
         print('\n圖片下載中...')
         img=htmlfile.find("div", class_="col-xs-12 col-md-12").find("img")
         imglink=img["src"]
-            
+
         # 下載封面圖並存檔
         img=get(imglink,headers=headers)
-        filename=title.small.string[0:title.small.string.index(' ')]
-        imgnam=dowwloadpath+filename.upper()+".jpg"
+        imgnam=dowwloadpath+num.upper()+".jpg"
         with open(imgnam,"wb") as file:
             file.write(img.content)
             print('-----下載完成-----\n')
