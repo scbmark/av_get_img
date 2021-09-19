@@ -1,8 +1,8 @@
 #!/home/scbmark/anaconda3/bin/python3.8
 #爬取av01的封面圖
 #作者：scbmark
-#日期：2021/9/15
-#版本：3.0(python)
+#日期：2021/9/19
+#版本：5.0(python)
 
 #TODO:'結合伊莉搜尋帖子'
 from bs4 import BeautifulSoup
@@ -37,6 +37,7 @@ headers={
     "User-Agent":"Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0"
 }
 
+
 t=0
 while t==0:
     # 輸入番號
@@ -53,25 +54,17 @@ while t==0:
         htmlfile=BeautifulSoup(root.text,"lxml")
 
         # 印出標題、片商、女優、發行日
-        title=htmlfile.find("h3")
-        num=title.small.string[0:title.small.string.index(' ')]
-        print('\n-----影片資訊-----')
-        print(f'番號：{num}')
-        print('標題：'+title.getText().strip(title.small.string))
-        movinfo=htmlfile.find("div",class_="col-md-9")
-        pro_actress=movinfo.find_all("a")
-        if len(pro_actress)>=2:
-            for i in range(0,len(pro_actress)-1):
-                if i==0:
-                    print('女優：'+pro_actress[i].string)
-                else:
-                    print(pro_actress[i].string)
-            print('片商：'+pro_actress[-1].string)
-        elif len(pro_actress)==1:
-            print('片商：'+pro_actress[0].string)
-        else:
-            print('資訊取得錯誤')
+        movinfo=htmlfile.find("h3")
 
+        num=movinfo.small.string[0:movinfo.small.string.index(' ')]
+        address=movinfo.small.string[movinfo.small.string.index(' ')+1:]
+        title=movinfo.getText().strip(movinfo.small.string)
+        
+        print('\n-----影片資訊-----')
+        print('番號：'+num.upper())
+        print('女優：'+address)
+        print('標題：'+title)
+        
         # 找出封面圖的標籤位置和網址
         print('\n圖片下載中...')
         img=htmlfile.find("div", class_="col-xs-12 col-md-12").find("img")
