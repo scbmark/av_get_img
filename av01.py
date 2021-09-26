@@ -15,10 +15,10 @@ from shutil import move
 
 def set_path():
     defaultpath='/run/media/scbmark/Data/user/Downloads/006 AV_tem/'
-    print(f"預設路徑：\n{defaultpath}\n")
+    print(f"預設路徑：\n{defaultpath}")
     t=0
     while t==0:
-        chgdir=input('是否更改路徑(y=1,n=2)')
+        chgdir=input('是否更改路徑：\n(y=1,n=2)')
         if int(chgdir)==1:
             from tkinter import Tk
             from tkinter import filedialog as fd
@@ -27,7 +27,7 @@ def set_path():
             root.directory = fd.askdirectory(initialdir = Path.home())
             dowwloadpath=root.directory+'/'
             os.chdir(dowwloadpath)
-            print ('新的路徑：'+dowwloadpath)
+            print ('新的路徑：\n'+dowwloadpath)
             t=1
         elif int(chgdir)==2:
             dowwloadpath=defaultpath
@@ -43,7 +43,7 @@ def get_keywd():
     keywd=input("搜尋：")
     if keywd=="q":
         print('回主選單')
-        print('--------------------\n')
+        print('--------------------')
         data=1
         # sys.exit("程式結束")
     else:
@@ -71,7 +71,8 @@ def analyze_htmlfile(htmlfile, defaultpath):
         title=movinfo.getText().strip(movinfo.small.string)
         avinfo=[num, address, title, imglink]
     except:
-        print('查無資料')
+        print('無此番號資料')
+        avinfo=[]
     return avinfo
 
 def save_info(avinfo, dowwloadpath):
@@ -84,6 +85,7 @@ def print_info(avinfo):
     print('番號：'+avinfo[0])
     print('女優：'+avinfo[1])
     print('標題：'+avinfo[2])
+    print('--------------------')
 
 def save_img(avinfo, dowwloadpath):
     headers={
@@ -101,15 +103,17 @@ def file_catgory(dowwloadpath):
     movfile=shelve.open(dowwloadpath+'movfile_tem')
     filetype=('*.jpg', '*.mp4')
     totle_lists=[]
+    unknown=[]
     for type in filetype:
         totle_lists.extend(glob.glob(type))
     print(totle_lists)
     print('-'*20)
-
+    
     for list in totle_lists:
         oldName = Path(list).name
         newName = Path(list).stem.upper() + Path(list).suffix
         os.rename(oldName,newName)
+        list=newName
         num=list[0:-4]
         
         if num in movfile:
@@ -161,16 +165,22 @@ def file_catgory(dowwloadpath):
                             print(f'{list}--移動完成')
                 else:
                     print(f'{list}--查無本地資料')
+                    unknown.extend(list)
+
             else:
                 print(f'{list}--查無本地資料')
+                unknown.append(list)
     print('--------------------')
     print('分類完成\n')
+    if unknown!=[]:
+        print('尚有以下未分類', unknown)
     movfile.close()
+    return unknown
 
 
 k=0
 while k==0:
-    mode=input('輸入模式(1.下載資料和封面 2.檔案分類 3.離開)')
+    mode=input('輸入模式：\n(1.下載資料和封面 2.檔案分類 3.離開)')
     if mode=='1':
         dowwloadpath=set_path()
         t=0
@@ -179,16 +189,26 @@ while k==0:
             if data!=1:
                 htmlfile=get_htmlfile(data)
                 avinfo=analyze_htmlfile(htmlfile, dowwloadpath)
-                save_info(avinfo, dowwloadpath)
-                print_info(avinfo)
-                imglink=avinfo[3]
-                save_img(avinfo, dowwloadpath)
+                if avinfo!=[]:
+                    save_info(avinfo, dowwloadpath)
+                    print_info(avinfo)
+                    imglink=avinfo[3]
+                    save_img(avinfo, dowwloadpath)
             else:
                 break
 
     elif mode=='2':
         dowwloadpath=set_path()
-        file_catgory(dowwloadpath)
+        unknown=file_catgory(dowwloadpath)        
+        if unknown!=[]:            
+            for unknow in unknown:
+                print(f'嘗試下載{unknow[0:-4]}的資料中...')
+                data={"sn":f'{unknow[0:-4]}'}
+                htmlfile=get_htmlfile(data)
+                avinfo=analyze_htmlfile(htmlfile, dowwloadpath)
+                save_info(avinfo, dowwloadpath)
+                print_info(avinfo)
+            file_catgory(dowwloadpath)
     elif mode=='3':
         sys.exit("程式結束")
     else:
