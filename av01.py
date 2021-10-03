@@ -1,8 +1,12 @@
 #!/home/scbmark/anaconda3/bin/python3.8
 #爬取av的資訊/下載封面/分類資料夾中的AV檔案
 #作者：scbmark
-#日期：2021/9/26
-#版本：1.0(python)
+#日期：2021/10/03
+#版本：2.0(python)
+#TODO 
+#更動：
+    # 2.0 改善嘗試下載的流程、新增更新程式功能
+
 
 import sys
 import os
@@ -171,16 +175,20 @@ def file_catgory(dowwloadpath):
                 print(f'{list}--查無本地資料')
                 unknown.append(list)
     print('--------------------')
-    print('分類完成\n')
+    print('分類完成')
     if unknown!=[]:
         print('尚有以下未分類', unknown)
     movfile.close()
     return unknown
 
-
+def update():
+    os.chdir('/home/scbmark/文件/程式碼/web _crawler/av01/avgetimg/')
+    os.system('sudo cp av01.py /bin')
+    print('更新完成 請重新啟動程式')
+    sys.exit()
 k=0
 while k==0:
-    mode=input('輸入模式：\n(1.下載資料和封面 2.檔案分類 3.離開)')
+    mode=input('輸入模式：\n(1.下載資料和封面 2.檔案分類 3.離開 4.更新程式)')
     if mode=='1':
         dowwloadpath=set_path()
         t=0
@@ -196,7 +204,6 @@ while k==0:
                     save_img(avinfo, dowwloadpath)
             else:
                 break
-
     elif mode=='2':
         dowwloadpath=set_path()
         unknown=file_catgory(dowwloadpath)        
@@ -206,10 +213,13 @@ while k==0:
                 data={"sn":f'{unknow[0:-4]}'}
                 htmlfile=get_htmlfile(data)
                 avinfo=analyze_htmlfile(htmlfile, dowwloadpath)
-                save_info(avinfo, dowwloadpath)
-                print_info(avinfo)
+                if avinfo!=[]:
+                    save_info(avinfo, dowwloadpath)
+                    print_info(avinfo)
             file_catgory(dowwloadpath)
     elif mode=='3':
         sys.exit("程式結束")
+    elif mode=='4':
+        update()
     else:
         print('輸入錯誤')
